@@ -1,0 +1,35 @@
+# Demo credentials only. Use real secrets for any shared or production deployment.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: matchday
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-matchday}
+      POSTGRES_DB: matchday
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matchday -d matchday"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://matchday:${POSTGRES_PASSWORD:-matchday}@db:5432/matchday
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:

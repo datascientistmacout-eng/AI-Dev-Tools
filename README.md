@@ -18,3 +18,11 @@ python -m pytest
 ```
 
 Unit tests are in `backend/tests/unit`, integration tests in `backend/tests/integration`.
+
+## Run everything with Docker
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:8080 for the app. The API docs are at http://localhost:8000/docs. Data is kept in a Postgres volume; `docker compose down -v` removes it.
