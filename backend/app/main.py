@@ -196,3 +196,12 @@ def top_scorers(slug: str, db: Session = Depends(get_db)):
                 totals[key] = totals.get(key, 0) + s.goals
     ranked = sorted(totals.items(), key=lambda kv: (-kv[1], kv[0][0].lower()))
     return [{"player": p, "team": t, "goals": g} for (p, t), g in ranked[:10]]
+
+
+# Serve the built frontend when STATIC_DIR is set (single-container deployment).
+import os
+from fastapi.staticfiles import StaticFiles
+
+_static_dir = os.getenv("STATIC_DIR")
+if _static_dir and os.path.isdir(_static_dir):
+    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")

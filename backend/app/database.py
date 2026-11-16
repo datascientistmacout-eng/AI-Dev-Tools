@@ -4,7 +4,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./matchday.db")
+
+def normalize_url(url: str) -> str:
+    """Hosts such as Render give postgres:// or postgresql:// URLs; use the psycopg 3 driver."""
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg://" + url[len(prefix):]
+    return url
+
+
+DATABASE_URL = normalize_url(os.getenv("DATABASE_URL", "sqlite:///./matchday.db"))
 
 
 class Base(DeclarativeBase):
